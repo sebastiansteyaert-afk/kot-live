@@ -415,6 +415,37 @@
     }
   });
 
+  // -------------------------------------------------------------- widget
+  // The Scriptable widget script is fetched when the help opens, then copied on tap.
+  let widgetScript = null;
+  function loadWidgetScript() {
+    if (!widgetScript) {
+      widgetScript = fetch('kot-widget.js?v=1', { cache: 'no-store' }).then((r) => {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.text();
+      });
+      widgetScript.catch(() => { widgetScript = null; });
+    }
+    return widgetScript;
+  }
+  $('widgetHelp').addEventListener('toggle', () => {
+    if ($('widgetHelp').open) loadWidgetScript().catch(() => {});
+  });
+  $('copyWidget').addEventListener('click', async () => {
+    try {
+      if (window.ClipboardItem && navigator.clipboard && navigator.clipboard.write) {
+        // Safari only allows copying during the tap, so hand it the pending download.
+        const blob = loadWidgetScript().then((t) => new Blob([t], { type: 'text/plain' }));
+        await navigator.clipboard.write([new ClipboardItem({ 'text/plain': blob })]);
+      } else {
+        await navigator.clipboard.writeText(await loadWidgetScript());
+      }
+      toast('Widget script copied');
+    } catch (e) {
+      toast('Copy failed. Try again.', true);
+    }
+  });
+
   // --------------------------------------------------------------- start
   if (who && code) showMain(); else showSetup();
 }());

@@ -12,7 +12,7 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="icon-180.png">
   <link rel="icon" href="icon-192.png">
-  <link rel="stylesheet" href="app.css?v=2">
+  <link rel="stylesheet" href="app.css?v=3">
 </head>
 <body>
   <!-- First launch: name and household code -->
@@ -88,12 +88,25 @@
       </label>
     </section>
 
+    <details id="widgetHelp" class="card widget-help">
+      <summary>📱 iPhone widget</summary>
+      <ol>
+        <li>Install <a href="https://apps.apple.com/app/scriptable/id1405459188">Scriptable</a> from the App Store (free).</li>
+        <li>Tap <b>Copy widget script</b> below.</li>
+        <li>In Scriptable, tap <b>+</b> and paste. Tap the title at the top, name it <b>Kot Live</b>, then tap <b>Done</b>.</li>
+        <li>Tap <b>Kot Live</b> once and enter your name and the household code.</li>
+        <li>Long-press your Home Screen → <b>Edit</b> → <b>Add Widget</b> → <b>Scriptable</b>, pick a size and add it. Then long-press the widget → <b>Edit Widget</b> → Script: <b>Kot Live</b>.</li>
+      </ol>
+      <p class="muted small-text">Medium and large widgets have a +1 🍺 button. Lock Screen widgets work the same way. iOS refreshes widgets about every 10–20 minutes.</p>
+      <button id="copyWidget" class="secondary wide" type="button">Copy widget script</button>
+    </details>
+
     <p id="status" class="muted center small-text"></p>
   </main>
 
   <div id="toast" role="status"></div>
 
-  <script src="config.js?v=2"></script>
-  <script src="app.js?v=2"></script>
+  <script src="config.js?v=3"></script>
+  <script src="app.js?v=3"></script>
 </body>
 </html>

@@ -99,4 +99,11 @@ button:disabled { opacity: 0.45; cursor: default; }
 .records div { display: flex; justify-content: space-between; gap: 12px; padding: 4px 0; }
 .records dt { color: var(--muted); }
 .records dd { margin: 0; text-align: right; }
-
+.widget-help summary { font-weight: 600; cursor: pointer; list-style: none; }
+.widget-help summary::-webkit-details-marker { display: none; }
+.widget-help summary::after { content: '›'; float: right; color: var(--muted); transition: transform 150ms ease; }
+.widget-help[open] summary::after { transform: rotate(90deg); }
+.widget-help ol { margin: 12px 0 8px; padding-left: 22px; font-size: 15px; }
+.widget-help li { margin-bottom: 8px; }
+.widget-help a { color: var(--beer); }
+.secondary.wide { width: 100%; }
