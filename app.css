@@ -86,3 +86,17 @@ button:disabled { opacity: 0.45; cursor: default; }
 /* Visually hidden but still tappable through its label (iOS ignores display:none file inputs). */
 .file-input { position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; pointer-events: none; }
 #photoPick { position: relative; }
+
+.board { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.board th { font-size: 13px; font-weight: 500; color: var(--muted); text-align: left; padding: 0 0 6px; }
+.board td { padding: 8px 0; border-top: 1px solid var(--line); }
+.board .num { text-align: right; width: 56px; }
+.board td.num { color: var(--muted); }
+.board td.week { color: var(--beer); font-weight: 600; font-size: 19px; }
+.board .name { overflow-wrap: anywhere; }
+.board tr.me .name { font-weight: 600; }
+.records { margin: 12px 0 0; font-size: 15px; }
+.records div { display: flex; justify-content: space-between; gap: 12px; padding: 4px 0; }
+.records dt { color: var(--muted); }
+.records dd { margin: 0; text-align: right; }
+

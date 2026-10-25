@@ -12,7 +12,7 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="icon-180.png">
   <link rel="icon" href="icon-192.png">
-  <link rel="stylesheet" href="app.css?v=1">
+  <link rel="stylesheet" href="app.css?v=2">
 </head>
 <body>
   <!-- First launch: name and household code -->
@@ -45,6 +45,18 @@
         <span id="beerNote" class="muted"></span>
       </div>
       <ul id="recent" class="recent"></ul>
+    </section>
+
+    <section class="card">
+      <h2>🏆 Leaderboard</h2>
+      <table class="board">
+        <thead><tr><th></th><th class="num">Week</th><th class="num">Total</th><th class="num">Best</th></tr></thead>
+        <tbody id="boardRows"><tr><td class="muted" colspan="4">No beers yet</td></tr></tbody>
+      </table>
+      <dl class="records">
+        <div><dt>Last week</dt><dd id="lastWeek">–</dd></div>
+        <div><dt>Best week</dt><dd id="bestWeek">–</dd></div>
+      </dl>
     </section>
 
     <section class="card">
@@ -81,7 +93,7 @@
 
   <div id="toast" role="status"></div>
 
-  <script src="config.js?v=1"></script>
-  <script src="app.js?v=1"></script>
+  <script src="config.js?v=2"></script>
+  <script src="app.js?v=2"></script>
 </body>
 </html>

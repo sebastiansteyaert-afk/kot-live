@@ -31,6 +31,7 @@
     'wrong household code': 'Wrong household code.',
     'household code not set': 'The household code has not been set up in Supabase yet.',
     'nothing to correct this week': 'Nothing to correct this week.',
+    'you have no beers to correct this week': 'You have no beers to correct this week.',
     'Invalid API key': 'The app is not connected to Supabase correctly (API key).',
   };
   async function rpc(fn, args) {
@@ -144,6 +145,7 @@
     who = name;
     store.set('kotlive.who', who);
     $('whoButton').textContent = who + ' ▾';
+    if (state) render(state);
   });
 
   // ------------------------------------------------------------- render
@@ -153,7 +155,8 @@
     lastOk = Date.now();
     $('weekCount').textContent = s.week;
     $('totalCount').textContent = s.total;
-    $('correctBeer').disabled = s.week <= 0;
+    $('correctBeer').disabled = myWeek(s) <= 0;
+    renderStats(s.stats);
     const list = $('recent');
     list.textContent = '';
     (s.recent || []).slice(0, 6).forEach((r) => {
@@ -189,6 +192,57 @@
       loadPhoto(p.id);
     }
     $('status').textContent = 'Updated ' + when(new Date().toISOString());
+  }
+
+  // Your own beers this week. Without stats (older database) fall back to the house count.
+  function myWeek(s) {
+    if (!s || !s.stats) return s ? s.week : 0;
+    const me = (s.stats.people || []).find((p) => p.who.toLowerCase() === String(who || '').toLowerCase());
+    return me ? me.week : 0;
+  }
+  function joinNames(names) {
+    return names.length < 2 ? names.join('') : names.slice(0, -1).join(', ') + ' & ' + names[names.length - 1];
+  }
+  function weekOf(iso) {
+    return new Date(iso).toLocaleDateString([], { day: 'numeric', month: 'short' });
+  }
+  function renderStats(stats) {
+    const body = $('boardRows');
+    body.textContent = '';
+    const people = (stats && stats.people) || [];
+    if (!people.length) {
+      const tr = document.createElement('tr');
+      const td = document.createElement('td');
+      td.colSpan = 4;
+      td.className = 'muted';
+      td.textContent = stats ? 'No beers yet' : 'Stats need the database update.';
+      tr.append(td);
+      body.append(tr);
+    }
+    const top = people.reduce((m, p) => Math.max(m, p.week), 0);
+    people.forEach((p) => {
+      const tr = document.createElement('tr');
+      if (p.who.toLowerCase() === String(who || '').toLowerCase()) tr.className = 'me';
+      const name = document.createElement('td');
+      name.className = 'name';
+      name.textContent = (top > 0 && p.week === top ? '👑 ' : '') + p.who;
+      tr.append(name);
+      [p.week, p.total, p.best].forEach((n, i) => {
+        const td = document.createElement('td');
+        td.className = 'num' + (i === 0 ? ' week' : '');
+        td.textContent = n;
+        tr.append(td);
+      });
+      body.append(tr);
+    });
+    const lw = stats && stats.last_week;
+    $('lastWeek').textContent = lw && lw.top > 0
+      ? joinNames(lw.leaders) + ' · ' + lw.top + (lw.total !== lw.top ? ' (house ' + lw.total + ')' : '')
+      : '–';
+    const rec = stats && stats.record;
+    $('bestWeek').textContent = rec && rec.n > 0
+      ? rec.n + ' · ' + (rec.current ? 'this week 🔥' : 'week of ' + weekOf(rec.week_start))
+      : '–';
   }
 
   async function loadPhoto(id) {
@@ -238,12 +292,12 @@
       if (state) render(state);
       handleError(e);
     } finally {
-      setTimeout(() => { plus.disabled = false; minus.disabled = !state || state.week <= 0; }, 600);
+      setTimeout(() => { plus.disabled = false; minus.disabled = myWeek(state) <= 0; }, 600);
     }
   }
   $('addBeer').addEventListener('click', () => beer(1));
   $('correctBeer').addEventListener('click', () => {
-    if (window.confirm('Remove one beer from this week?')) beer(-1);
+    if (window.confirm('Remove one of your beers from this week?')) beer(-1);
   });
 
   // ------------------------------------------------------------- message
