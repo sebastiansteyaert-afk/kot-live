@@ -1,0 +1,88 @@
+:root {
+  --bg: #0e0f13;
+  --card: #1b1d23;
+  --card-2: #25272f;
+  --line: rgba(255, 255, 255, 0.10);
+  --text: #f3f3f4;
+  --muted: #9a9ca6;
+  --beer: #f5b83d;
+  --beer-dark: #2b2210;
+  --danger: #ff7a6b;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; background: var(--bg); color: var(--text); }
+body {
+  font: 17px/1.4 -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+  padding: calc(env(safe-area-inset-top) + 12px) 16px calc(env(safe-area-inset-bottom) + 24px);
+  -webkit-text-size-adjust: 100%;
+}
+[hidden] { display: none !important; }
+.screen { max-width: 520px; margin: 0 auto; }
+h1 { font-size: 30px; font-weight: 700; letter-spacing: -0.02em; margin: 0; }
+h2 { font-size: 17px; font-weight: 600; margin: 0 0 10px; }
+.brand { display: flex; align-items: center; gap: 12px; margin-top: 24px; }
+.brand img { width: 52px; height: 52px; border-radius: 14px; }
+.lead { color: var(--muted); margin: 8px 0 20px; }
+.top { display: flex; align-items: center; justify-content: space-between; margin: 6px 0 14px; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 22px; padding: 18px; margin-bottom: 14px; }
+label { display: block; font-size: 15px; color: var(--muted); margin-bottom: 14px; }
+input, textarea {
+  display: block; width: 100%; margin-top: 6px; font: inherit; color: var(--text);
+  background: var(--card-2); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px;
+  -webkit-appearance: none; appearance: none;
+}
+textarea { resize: none; min-height: 72px; }
+input:focus, textarea:focus { outline: 2px solid rgba(245, 184, 61, 0.6); outline-offset: 1px; }
+button { font: inherit; cursor: pointer; border: 0; }
+button:disabled { opacity: 0.45; cursor: default; }
+.primary { width: 100%; background: var(--text); color: #15161a; font-weight: 600; border-radius: 14px; padding: 14px; }
+.primary.small { width: auto; padding: 10px 22px; }
+.secondary {
+  display: block; text-align: center; margin: 12px 0 0; color: var(--text); font-weight: 600;
+  background: var(--card-2); border: 1px solid var(--line); border-radius: 14px; padding: 12px;
+}
+.link { background: none; color: var(--muted); padding: 8px 0; text-decoration: underline; text-underline-offset: 3px; }
+.chip { background: var(--card-2); color: var(--text); border-radius: 999px; padding: 7px 14px; font-size: 15px; }
+.row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 8px; }
+.muted { color: var(--muted); }
+.small-text { font-size: 14px; }
+.center { text-align: center; }
+.error { color: var(--danger); margin: 0 0 12px; }
+
+.beer-numbers { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 14px; }
+.big { font-size: 64px; font-weight: 700; line-height: 1; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; color: var(--beer); }
+.unit { margin-left: 10px; color: var(--muted); }
+.total { color: var(--muted); font-variant-numeric: tabular-nums; }
+.total span { color: var(--text); font-weight: 600; }
+.beer-button {
+  width: 100%; padding: 22px; border-radius: 18px; font-size: 30px; font-weight: 700;
+  background: var(--beer); color: #1d1606; transition: transform 120ms ease;
+}
+.beer-button:active { transform: scale(0.97); }
+.recent { list-style: none; margin: 10px 0 0; padding: 0; font-size: 15px; }
+.recent li { display: flex; justify-content: space-between; padding: 7px 0; border-top: 1px solid var(--line); color: var(--muted); }
+.recent li b { color: var(--text); font-weight: 500; }
+.recent .minus b { color: var(--danger); }
+
+.current { margin: 0 0 12px; padding: 12px 14px; background: var(--card-2); border-radius: 14px; font-size: 18px; overflow-wrap: anywhere; }
+.current small { display: block; margin-top: 6px; color: var(--muted); font-size: 14px; }
+.photo-box {
+  display: flex; align-items: center; justify-content: center; min-height: 160px;
+  background: #0a0b0e; border-radius: 14px; overflow: hidden;
+}
+.photo-box img, .preview { display: block; max-width: 100%; max-height: 360px; margin: 0 auto; border-radius: 10px; }
+.preview { margin-top: 12px; }
+
+#toast {
+  position: fixed; left: 50%; bottom: calc(env(safe-area-inset-bottom) + 24px); transform: translate(-50%, 20px);
+  background: #f3f3f4; color: #15161a; padding: 10px 18px; border-radius: 999px; font-weight: 600;
+  opacity: 0; pointer-events: none; transition: opacity 200ms ease, transform 200ms ease; max-width: 90vw;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+#toast.shown { opacity: 1; transform: translate(-50%, 0); }
+#toast.bad { background: var(--danger); color: #1a0b08; }
+
+/* Visually hidden but still tappable through its label (iOS ignores display:none file inputs). */
+.file-input { position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; pointer-events: none; }
+#photoPick { position: relative; }

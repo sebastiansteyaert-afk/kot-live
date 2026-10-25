@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Kot Live</title>
+  <meta name="theme-color" content="#0e0f13">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Kot Live">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icon-180.png">
+  <link rel="icon" href="icon-192.png">
+  <link rel="stylesheet" href="app.css?v=1">
+</head>
+<body>
+  <!-- First launch: name and household code -->
+  <section id="setup" class="screen" hidden>
+    <div class="brand"><img src="icon-192.png" alt=""><h1>Kot Live</h1></div>
+    <p class="lead">Beers, messages and photos on the kot TV.</p>
+    <form id="setupForm" class="card" autocomplete="off">
+      <label>Your name<input id="setupName" maxlength="20" required autocapitalize="words" placeholder="e.g. Seb"></label>
+      <label>Household code<input id="setupCode" type="password" required placeholder="From your housemates"></label>
+      <p id="setupError" class="error" hidden></p>
+      <button class="primary" type="submit">Continue</button>
+    </form>
+  </section>
+
+  <!-- Main screen -->
+  <main id="main" class="screen" hidden>
+    <header class="top">
+      <h1>Kot Live</h1>
+      <button id="whoButton" class="chip" type="button"></button>
+    </header>
+
+    <section class="card beer">
+      <div class="beer-numbers">
+        <div><span id="weekCount" class="big">–</span><span class="unit">this week</span></div>
+        <div class="total"><span id="totalCount">–</span> all-time</div>
+      </div>
+      <button id="addBeer" class="beer-button" type="button">+1 <span aria-hidden="true">🍺</span></button>
+      <div class="row">
+        <button id="correctBeer" class="link" type="button">Correct −1</button>
+        <span id="beerNote" class="muted"></span>
+      </div>
+      <ul id="recent" class="recent"></ul>
+    </section>
+
+    <section class="card">
+      <h2>💬 Message on the TV</h2>
+      <blockquote id="currentMessage" class="current muted">No message yet</blockquote>
+      <form id="messageForm">
+        <textarea id="messageInput" rows="2" placeholder="Write something for the TV…" enterkeyhint="send"></textarea>
+        <div class="row">
+          <span id="messageCount" class="muted">0 / 120</span>
+          <button id="messageSend" class="primary small" type="submit" disabled>Post</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="card">
+      <h2>📸 Photo on the TV</h2>
+      <div id="currentPhotoBox" class="photo-box"><span class="muted">No photo yet</span></div>
+      <p id="currentPhotoInfo" class="muted small-text"></p>
+      <div id="newPhoto" hidden>
+        <img id="newPhotoPreview" class="preview" alt="New photo preview">
+        <p id="newPhotoInfo" class="muted small-text"></p>
+        <div class="row">
+          <button id="photoCancel" class="link" type="button">Cancel</button>
+          <button id="photoSend" class="primary small" type="button">Send to TV</button>
+        </div>
+      </div>
+      <label id="photoPick" class="secondary">Choose photo
+        <input id="photoInput" class="file-input" type="file" accept="image/*">
+      </label>
+    </section>
+
+    <p id="status" class="muted center small-text"></p>
+  </main>
+
+  <div id="toast" role="status"></div>
+
+  <script src="config.js?v=1"></script>
+  <script src="app.js?v=1"></script>
+</body>
+</html>
