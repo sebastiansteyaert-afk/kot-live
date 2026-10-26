@@ -246,7 +246,7 @@
       : '–';
   }
 
-  // IVAGO pickups. Days are Belgian dates (YYYY-MM-DD). Today's pickup counts until 10:00.
+  // IVAGO pickups. Days are Belgian dates (YYYY-MM-DD). Today's pickup is listed until 10:00.
   function ymd(d) { return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
   function binDay(day) {
     const now = new Date();
@@ -289,14 +289,13 @@
       li.append(when, chips);
       ul.append(li);
     });
-    const first = list[0];
-    const label = first && binDay(first.day);
+    // The reminder only shows the evening before a pickup, 18:00-23:59.
+    const now = new Date();
+    const tomorrow = ymd(new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1));
+    const next = now.getHours() >= 18 ? list.find((b) => b.day === tomorrow) : null;
     const alert = $('binsAlert');
-    if (first && (label === 'Today' || label === 'Tomorrow')) {
-      const names = first.items.map((i) => i.name).join(', ');
-      alert.textContent = label === 'Today'
-        ? '🗑 Pickup today: ' + names + '.'
-        : '🗑 Pickup tomorrow: ' + names + '. Put them out tonight.';
+    if (next) {
+      alert.textContent = '🗑 Pickup tomorrow: ' + next.items.map((i) => i.name).join(', ') + '. Put them out tonight.';
       alert.hidden = false;
     } else {
       alert.hidden = true;
@@ -478,7 +477,7 @@
   let widgetScript = null;
   function loadWidgetScript() {
     if (!widgetScript) {
-      widgetScript = fetch('kot-widget.js?v=2', { cache: 'no-store' }).then((r) => {
+      widgetScript = fetch('kot-widget.js?v=3', { cache: 'no-store' }).then((r) => {
         if (!r.ok) throw new Error('HTTP ' + r.status);
         return r.text();
       });

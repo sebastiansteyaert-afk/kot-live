@@ -6,7 +6,7 @@
 //    widget → Script: Kot Live. Lock Screen widgets work the same way.
 //
 // Tap "+1 🍺" on the medium/large widget to log a beer (with Undo). Tap anywhere else
-// for a menu. The evening before an IVAGO pickup the widget shows which bins go out.
+// for a menu. The evening before an IVAGO pickup (from 18:00) the widget shows which bins go out.
 // iOS decides how often widgets refresh (usually every 10-20 minutes).
 
 const KOT = {
@@ -129,11 +129,12 @@ function nextBins(state) {
     const [y, m, d] = b.day.split('-').map(Number);
     const label = b.day === today ? 'Today' : b.day === tomorrow ? 'Tomorrow'
       : new Date(y, m - 1, d).toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' });
-    return { urgent: b.day === today || b.day === tomorrow, label, names: b.items.map((i) => i.short || i.name), items: b.items };
+    // The reminder (amber line) only shows the evening before, 18:00-23:59.
+    return { urgent: b.day === tomorrow && now.getHours() >= 18, label, names: b.items.map((i) => i.short || i.name), items: b.items };
   }
   return null;
 }
-// "🗑 Tomorrow: Rest, PMD, GFT" (only the evening before and on the morning itself)
+// "🗑 Tomorrow: Rest, PMD, GFT" (only the evening before a pickup, 18:00-23:59)
 function urgentBinLine(state) {
   const b = nextBins(state);
   return b && b.urgent ? '🗑 ' + b.label + ': ' + b.names.join(', ') : null;
