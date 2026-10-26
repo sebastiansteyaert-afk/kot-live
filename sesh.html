@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Kot sesh</title>
+  <meta name="theme-color" content="#0e0f13">
+  <meta name="robots" content="noindex">
+  <meta name="referrer" content="no-referrer">
+  <link rel="icon" href="icon-192.png">
+  <link rel="apple-touch-icon" href="icon-180.png">
+  <link rel="stylesheet" href="app.css?v=5">
+</head>
+<body>
+  <!-- The link was not valid, or the sesh is over -->
+  <section id="ended" class="screen ended" hidden>
+    <div class="big">🍻</div>
+    <h1 id="endedTitle">This sesh has ended</h1>
+    <p id="endedText" class="lead">Thanks for coming!</p>
+  </section>
+
+  <!-- First visit: your name -->
+  <section id="join" class="screen" hidden>
+    <div class="brand"><img src="icon-192.png" alt=""><h1>Kot sesh 🎉</h1></div>
+    <p class="lead">Log your beers and put photos and messages on the TV. No app or account needed.</p>
+    <form id="joinForm" class="card" autocomplete="off">
+      <label>Your name<input id="joinName" maxlength="20" required autocapitalize="words" placeholder="e.g. Marie"></label>
+      <button class="primary" type="submit">Join the sesh</button>
+    </form>
+  </section>
+
+  <main id="main" class="screen" hidden>
+    <header class="top">
+      <h1>Kot sesh 🎉</h1>
+      <button id="nameButton" class="chip" type="button"></button>
+    </header>
+
+    <section class="card beer">
+      <div class="guest-hero">
+        <div><span id="tonight" class="big">–</span><span id="tonightUnit" class="unit">beers tonight</span></div>
+        <div class="total">You: <span id="mine">0</span></div>
+      </div>
+      <button id="addBeer" class="beer-button" type="button">+1 <span aria-hidden="true">🍺</span></button>
+      <div class="row">
+        <button id="correctBeer" class="link" type="button">Correct −1</button>
+        <span id="until" class="muted small-text"></span>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>🏆 Tonight</h2>
+      <ol id="people" class="sesh-people"></ol>
+    </section>
+
+    <section class="card">
+      <h2>💬 Message on the TV</h2>
+      <form id="messageForm">
+        <textarea id="messageInput" rows="2" placeholder="Write something for the TV…" enterkeyhint="send"></textarea>
+        <div class="row">
+          <span id="messageCount" class="muted">0 / 120</span>
+          <button id="messageSend" class="primary small" type="submit" disabled>Post</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="card">
+      <h2>📸 Photo on the TV</h2>
+      <div id="newPhoto" hidden>
+        <img id="newPhotoPreview" class="preview" alt="New photo preview">
+        <p id="newPhotoInfo" class="muted small-text"></p>
+        <div class="row">
+          <button id="photoCancel" class="link" type="button">Cancel</button>
+          <button id="photoSend" class="primary small" type="button">Send to TV</button>
+        </div>
+      </div>
+      <label id="photoPick" class="secondary">Choose photo
+        <input id="photoInput" class="file-input" type="file" accept="image/*">
+      </label>
+    </section>
+
+    <p class="muted center small-text">Your photos and messages show on the TV tonight. The housemates can remove them.</p>
+  </main>
+
+  <div id="toast" role="status"></div>
+
+  <script src="config.js?v=4"></script>
+  <script src="sesh.js?v=1"></script>
+</body>
+</html>
