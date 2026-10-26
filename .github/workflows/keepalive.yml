@@ -1,0 +1,30 @@
+# Keeps the free Supabase project awake: Supabase pauses free projects after a
+# week without activity (for example when everyone is away and the TV is off).
+# Once a day this calls kot_ping, which only answers "ok" and reads no data.
+name: Keep Kot Live awake
+
+on:
+  schedule:
+    - cron: '41 6 * * *'   # every day, 06:41 UTC
+  workflow_dispatch:
+
+permissions:
+  actions: write   # to keep this schedule switched on (see the last step)
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Ping the Kot Live database
+        run: |
+          curl --fail --silent --show-error --max-time 30 --retry 3 --retry-delay 20 \
+            -X POST "https://qjpyvokvaoqjtleopfyk.supabase.co/rest/v1/rpc/kot_ping" \
+            -H "apikey: sb_publishable_IiLxC_0X02QZl4XyVEY4Mw_5MSK-4ui" \
+            -H "Content-Type: application/json" -d '{}'
+      # GitHub switches off scheduled workflows in repositories without commits for
+      # 60 days; switching this one on again every day resets that clock.
+      - name: Keep this schedule switched on
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api -X PUT "repos/${{ github.repository }}/actions/workflows/keepalive.yml/enable"
