@@ -12,7 +12,7 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="icon-180.png">
   <link rel="icon" href="icon-192.png">
-  <link rel="stylesheet" href="app.css?v=4">
+  <link rel="stylesheet" href="app.css?v=5">
 </head>
 <body>
   <!-- First launch: name and household code -->
@@ -47,6 +47,24 @@
         <span id="beerNote" class="muted"></span>
       </div>
       <ul id="recent" class="recent"></ul>
+    </section>
+
+    <section id="seshCard" class="card sesh-card">
+      <div id="seshOff">
+        <h2>🎉 Sesh mode</h2>
+        <p class="muted small-text">The TV becomes a photo wall with tonight's scoreboard. Guests join by scanning a QR code on the TV. It ends by itself at 06:00.</p>
+        <button id="seshStart" class="secondary wide" type="button">Start a sesh</button>
+      </div>
+      <div id="seshOn" hidden>
+        <div class="row sesh-head"><h2>🎉 Sesh on</h2><span id="seshTimes" class="muted small-text"></span></div>
+        <div class="sesh-count"><span id="seshBeers" class="big">0</span><span id="seshBeersUnit" class="unit">beers tonight</span></div>
+        <ol id="seshPeople" class="sesh-people"></ol>
+        <button id="seshQR" class="primary" type="button">Show QR code for guests</button>
+        <div class="row">
+          <button id="seshManage" class="link" type="button">Remove photos or messages</button>
+          <button id="seshEnd" class="link danger" type="button">End sesh</button>
+        </div>
+      </div>
     </section>
 
     <section class="card">
@@ -111,9 +129,29 @@
     <p id="status" class="muted center small-text"></p>
   </main>
 
+  <div id="qrModal" class="modal" role="dialog" aria-label="Join the sesh" hidden>
+    <h2>Scan to join the sesh</h2>
+    <div id="qrBox" class="qr-box"></div>
+    <p id="qrLink" class="url"></p>
+    <div class="modal-actions">
+      <button id="qrShare" class="secondary" type="button">Share link</button>
+      <button id="qrClose" class="primary" type="button">Done</button>
+    </div>
+  </div>
+
+  <div id="manageModal" class="modal modal-list" role="dialog" aria-label="Tonight's photos and messages" hidden>
+    <div class="screen">
+      <div class="top"><h2>Tonight on the TV</h2><button id="manageClose" class="chip" type="button">Done</button></div>
+      <p class="muted small-text">Tap Remove to take something off the TV.</p>
+      <ul id="manageList" class="manage-list"></ul>
+    </div>
+  </div>
+
   <div id="toast" role="status"></div>
 
   <script src="config.js?v=4"></script>
-  <script src="app.js?v=5"></script>
+  <!-- QR codes for sesh guests: QR Code Generator 1.4.4 by Kazuhiko Arase (MIT) -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js" integrity="sha384-8FWZA6BGMXhsfO+BLtrJK0We6gg5o1JyO8xQm6peWDEUs17ACA5ziE/NIAkl9z2k" crossorigin="anonymous"></script>
+  <script src="app.js?v=6"></script>
 </body>
 </html>

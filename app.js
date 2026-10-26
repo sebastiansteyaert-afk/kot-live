@@ -158,6 +158,7 @@
     $('correctBeer').disabled = myWeek(s) <= 0;
     renderStats(s.stats);
     renderBins(s.bins);
+    renderSesh(s.sesh);
     const list = $('recent');
     list.textContent = '';
     (s.recent || []).slice(0, 6).forEach((r) => {
@@ -301,6 +302,185 @@
       alert.hidden = true;
     }
   }
+
+  // ----------------------------------------------------------------- sesh
+  // A party evening: the TV shows a photo wall with tonight's scoreboard and a
+  // QR code; guests use the guest page (sesh.html) with the sesh's own link.
+  const GUEST_PAGE = new URL('sesh.html', location.href.split('#')[0]).href;
+  function clock(iso) { return new Date(iso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }); }
+  function activeSesh() {
+    const x = state && state.sesh;
+    return x && Date.parse(x.ends_at) > Date.now() ? x : null;
+  }
+  function seshLink(x) { return GUEST_PAGE + '#' + x.token; }
+  function renderSesh() {
+    const x = activeSesh();
+    $('seshOff').hidden = !!x;
+    $('seshOn').hidden = !x;
+    if (!x) {
+      $('qrModal').hidden = true;
+      $('manageModal').hidden = true;
+      return;
+    }
+    $('seshTimes').textContent = 'since ' + clock(x.started_at) + ' · until ' + clock(x.ends_at);
+    $('seshBeers').textContent = x.beers;
+    $('seshBeersUnit').textContent = x.beers === 1 ? 'beer tonight' : 'beers tonight';
+    const ol = $('seshPeople');
+    ol.textContent = '';
+    const people = x.people || [];
+    const top = people.reduce((m, p) => Math.max(m, p.n), 0);
+    if (!people.length) {
+      const li = document.createElement('li');
+      li.className = 'muted';
+      li.textContent = 'No beers yet tonight';
+      ol.append(li);
+    }
+    people.slice(0, 8).forEach((p) => {
+      const li = document.createElement('li');
+      const name = document.createElement('span');
+      name.textContent = (top > 0 && p.n === top ? '👑 ' : '') + p.who;
+      if (p.guest) {
+        const tag = document.createElement('span');
+        tag.className = 'tag';
+        tag.textContent = 'guest';
+        name.append(tag);
+      }
+      const n = document.createElement('span');
+      n.className = 'n';
+      n.textContent = p.n;
+      li.append(name, n);
+      ol.append(li);
+    });
+    if (!$('manageModal').hidden) renderManage(x);
+  }
+  $('seshStart').addEventListener('click', async () => {
+    if (!window.confirm('Start a sesh? The TV becomes a photo wall with tonight\'s scoreboard until 06:00, or until someone ends it.')) return;
+    $('seshStart').disabled = true;
+    try {
+      render(await rpc('kot_sesh_start', { p_code: code, p_who: who }));
+      toast('Sesh started 🎉');
+    } catch (e) {
+      handleError(e);
+    } finally {
+      $('seshStart').disabled = false;
+    }
+  });
+  $('seshEnd').addEventListener('click', async () => {
+    if (!window.confirm('End the sesh for everyone? Guests can no longer join or post.')) return;
+    try {
+      render(await rpc('kot_sesh_end', { p_code: code }));
+      toast('Sesh ended');
+    } catch (e) {
+      handleError(e);
+    }
+  });
+
+  // QR code for guests (qrcode.js by Kazuhiko Arase, MIT).
+  function drawQR(text) {
+    const box = $('qrBox');
+    box.textContent = '';
+    if (!window.qrcode) return;
+    const q = window.qrcode(0, 'M');
+    q.addData(text);
+    q.make();
+    const n = q.getModuleCount();
+    const size = n + 4;
+    const NS = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(NS, 'svg');
+    svg.setAttribute('viewBox', '0 0 ' + size + ' ' + size);
+    svg.setAttribute('shape-rendering', 'crispEdges');
+    let d = '';
+    for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (q.isDark(r, c)) d += 'M' + (c + 2) + ' ' + (r + 2) + 'h1v1h-1z';
+    const bg = document.createElementNS(NS, 'rect');
+    bg.setAttribute('width', size);
+    bg.setAttribute('height', size);
+    bg.setAttribute('fill', '#fff');
+    const path = document.createElementNS(NS, 'path');
+    path.setAttribute('d', d);
+    svg.append(bg, path);
+    box.append(svg);
+  }
+  $('seshQR').addEventListener('click', () => {
+    const x = activeSesh();
+    if (!x) return;
+    drawQR(seshLink(x));
+    $('qrLink').textContent = seshLink(x);
+    $('qrModal').hidden = false;
+  });
+  $('qrClose').addEventListener('click', () => { $('qrModal').hidden = true; });
+  $('qrShare').addEventListener('click', async () => {
+    const x = activeSesh();
+    if (!x) return;
+    try {
+      if (navigator.share) await navigator.share({ title: 'Kot sesh', text: 'Join the kot sesh 🎉', url: seshLink(x) });
+      else { await navigator.clipboard.writeText(seshLink(x)); toast('Link copied'); }
+    } catch (e) { /* cancelled */ }
+  });
+
+  // Remove a photo or message from tonight's wall.
+  const thumbs = new Map();
+  let manageKey = '';
+  function renderManage(x) {
+    const items = (x.photos || []).map((p) => Object.assign({ kind: 'photo' }, p))
+      .concat((x.messages || []).map((m) => Object.assign({ kind: 'message' }, m)))
+      .sort((a, b) => Date.parse(b.at) - Date.parse(a.at));
+    const key = items.map((i) => i.kind + i.id).join(',');
+    if (key === manageKey) return;
+    manageKey = key;
+    const ul = $('manageList');
+    ul.textContent = '';
+    if (!items.length) {
+      const li = document.createElement('li');
+      li.className = 'muted';
+      li.textContent = 'Nothing posted tonight yet.';
+      ul.append(li);
+    }
+    items.forEach((it) => {
+      const li = document.createElement('li');
+      if (it.kind === 'photo') {
+        const img = document.createElement('img');
+        img.alt = 'Photo';
+        if (thumbs.has(it.id)) img.src = thumbs.get(it.id);
+        else rpc('kot_photo', { p_code: code, p_id: it.id }).then((p) => {
+          const src = 'data:image/jpeg;base64,' + p.data;
+          if (thumbs.size > 40) thumbs.delete(thumbs.keys().next().value);
+          thumbs.set(it.id, src);
+          img.src = src;
+        }).catch(() => {});
+        li.append(img);
+      }
+      const what = document.createElement('div');
+      what.className = 'what';
+      what.textContent = it.kind === 'photo' ? 'Photo' : '“' + it.body + '”';
+      const small = document.createElement('small');
+      small.textContent = it.who + (it.guest ? ' (guest)' : '') + ' · ' + clock(it.at);
+      what.append(small);
+      const remove = document.createElement('button');
+      remove.type = 'button';
+      remove.textContent = 'Remove';
+      remove.addEventListener('click', async () => {
+        if (!window.confirm('Remove this ' + it.kind + ' from the TV?')) return;
+        remove.disabled = true;
+        try {
+          render(await rpc('kot_sesh_remove', { p_code: code, p_kind: it.kind, p_id: it.id }));
+          toast('Removed');
+        } catch (e) {
+          remove.disabled = false;
+          handleError(e);
+        }
+      });
+      li.append(what, remove);
+      ul.append(li);
+    });
+  }
+  $('seshManage').addEventListener('click', () => {
+    const x = activeSesh();
+    if (!x) return;
+    manageKey = '';
+    renderManage(x);
+    $('manageModal').hidden = false;
+  });
+  $('manageClose').addEventListener('click', () => { $('manageModal').hidden = true; });
 
   async function loadPhoto(id) {
     shownPhotoId = id;

@@ -116,3 +116,37 @@ button:disabled { opacity: 0.45; cursor: default; }
 .bin-chips { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
 .bin-chip { padding: 3px 10px; border-radius: 999px; font-size: 13px; font-weight: 600; white-space: nowrap; }
 
+/* Sesh mode */
+.sesh-head h2 { margin: 0; }
+.sesh-head { margin-top: 0; }
+.sesh-count { display: flex; align-items: baseline; margin: 10px 0 8px; }
+.sesh-people { list-style: none; margin: 0 0 14px; padding: 0; font-variant-numeric: tabular-nums; }
+.sesh-people li { display: flex; justify-content: space-between; gap: 12px; padding: 7px 0; border-top: 1px solid var(--line); }
+.sesh-people li:first-child { border-top: 0; }
+.sesh-people .n { font-weight: 700; color: var(--beer); }
+.tag { margin-left: 6px; padding: 1px 8px; border-radius: 999px; background: var(--card-2); color: var(--muted); font-size: 12px; font-weight: 500; vertical-align: 2px; }
+.link.danger { color: var(--danger); }
+.modal {
+  position: fixed; top: 0; right: 0; bottom: 0; left: 0; z-index: 50; overflow-y: auto;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+  padding: calc(env(safe-area-inset-top) + 20px) 20px calc(env(safe-area-inset-bottom) + 20px);
+  background: rgba(10, 11, 14, 0.97);
+}
+.modal[hidden] { display: none !important; }
+.modal h2 { font-size: 22px; margin-bottom: 18px; }
+.qr-box { width: min(78vw, 340px); padding: 14px; border-radius: 20px; background: #fff; }
+.qr-box svg { display: block; width: 100%; height: auto; }
+.url { max-width: 340px; margin: 14px 0 18px; color: var(--muted); font-size: 13px; word-break: break-all; }
+.modal-actions { display: flex; gap: 10px; width: min(78vw, 340px); }
+.modal-actions button { flex: 1; margin: 0; }
+.modal-list { justify-content: flex-start; text-align: left; }
+.modal-list .screen { width: 100%; }
+.manage-list { list-style: none; margin: 0; padding: 0; }
+.manage-list li { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-top: 1px solid var(--line); }
+.manage-list img { width: 64px; height: 64px; object-fit: cover; border-radius: 10px; background: var(--card-2); flex: none; }
+.manage-list .what { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.manage-list .what small { display: block; color: var(--muted); font-size: 13px; }
+.manage-list button { flex: none; background: none; color: var(--danger); font-weight: 600; padding: 8px 4px; }
+.guest-hero { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 14px; }
+.ended { margin-top: 30vh; text-align: center; }
+.ended .big { font-size: 56px; }
