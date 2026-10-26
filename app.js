@@ -157,6 +157,7 @@
     $('totalCount').textContent = s.total;
     $('correctBeer').disabled = myWeek(s) <= 0;
     renderStats(s.stats);
+    renderBins(s.bins);
     const list = $('recent');
     list.textContent = '';
     (s.recent || []).slice(0, 6).forEach((r) => {
@@ -243,6 +244,63 @@
     $('bestWeek').textContent = rec && rec.n > 0
       ? rec.n + ' · ' + (rec.current ? 'this week 🔥' : 'week of ' + weekOf(rec.week_start))
       : '–';
+  }
+
+  // IVAGO pickups. Days are Belgian dates (YYYY-MM-DD). Today's pickup counts until 10:00.
+  function ymd(d) { return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+  function binDay(day) {
+    const now = new Date();
+    const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+    if (day === ymd(now)) return 'Today';
+    if (day === ymd(tomorrow)) return 'Tomorrow';
+    const [y, m, d] = day.split('-').map(Number);
+    return new Date(y, m - 1, d).toLocaleDateString([], { weekday: 'short', day: 'numeric', month: 'short' });
+  }
+  function upcomingBins(bins) {
+    const now = new Date();
+    const today = ymd(now);
+    return (bins || []).filter((b) => b && b.items && b.items.length && (b.day > today || (b.day === today && now.getHours() < 10)));
+  }
+  function renderBins(bins) {
+    const list = upcomingBins(bins);
+    $('binsCard').hidden = !list.length;
+    const ul = $('binsList');
+    ul.textContent = '';
+    list.forEach((b) => {
+      const li = document.createElement('li');
+      const when = document.createElement('div');
+      when.className = 'bins-day';
+      when.textContent = binDay(b.day);
+      if (b.note) {
+        const note = document.createElement('small');
+        note.textContent = 'moved (' + b.note.toLowerCase() + ')';
+        when.append(note);
+      }
+      const chips = document.createElement('div');
+      chips.className = 'bin-chips';
+      b.items.forEach((i) => {
+        const c = document.createElement('span');
+        c.className = 'bin-chip';
+        c.textContent = i.name;
+        c.style.background = i.color || '#888';
+        c.style.color = i.text || '#fff';
+        chips.append(c);
+      });
+      li.append(when, chips);
+      ul.append(li);
+    });
+    const first = list[0];
+    const label = first && binDay(first.day);
+    const alert = $('binsAlert');
+    if (first && (label === 'Today' || label === 'Tomorrow')) {
+      const names = first.items.map((i) => i.name).join(', ');
+      alert.textContent = label === 'Today'
+        ? '🗑 Pickup today: ' + names + '.'
+        : '🗑 Pickup tomorrow: ' + names + '. Put them out tonight.';
+      alert.hidden = false;
+    } else {
+      alert.hidden = true;
+    }
   }
 
   async function loadPhoto(id) {
@@ -420,7 +478,7 @@
   let widgetScript = null;
   function loadWidgetScript() {
     if (!widgetScript) {
-      widgetScript = fetch('kot-widget.js?v=1', { cache: 'no-store' }).then((r) => {
+      widgetScript = fetch('kot-widget.js?v=2', { cache: 'no-store' }).then((r) => {
         if (!r.ok) throw new Error('HTTP ' + r.status);
         return r.text();
       });

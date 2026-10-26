@@ -6,7 +6,8 @@
 //    widget → Script: Kot Live. Lock Screen widgets work the same way.
 //
 // Tap "+1 🍺" on the medium/large widget to log a beer (with Undo). Tap anywhere else
-// for a menu. iOS decides how often widgets refresh (usually every 10-20 minutes).
+// for a menu. The evening before an IVAGO pickup the widget shows which bins go out.
+// iOS decides how often widgets refresh (usually every 10-20 minutes).
 
 const KOT = {
   url: 'https://qjpyvokvaoqjtleopfyk.supabase.co',
@@ -116,6 +117,28 @@ function when(iso) {
 }
 function dayMonth(iso) { return new Date(iso).toLocaleDateString(undefined, { day: 'numeric', month: 'short' }); }
 
+// IVAGO pickups (Belgian dates, YYYY-MM-DD). Today's pickup counts until 10:00.
+function ymd(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+function nextBins(state) {
+  const now = new Date();
+  const today = ymd(now);
+  const tomorrow = ymd(new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1));
+  for (const b of state.bins || []) {
+    if (!b || !b.items || !b.items.length || b.day < today) continue;
+    if (b.day === today && now.getHours() >= 10) continue;
+    const [y, m, d] = b.day.split('-').map(Number);
+    const label = b.day === today ? 'Today' : b.day === tomorrow ? 'Tomorrow'
+      : new Date(y, m - 1, d).toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' });
+    return { urgent: b.day === today || b.day === tomorrow, label, names: b.items.map((i) => i.short || i.name), items: b.items };
+  }
+  return null;
+}
+// "🗑 Tomorrow: Rest, PMD, GFT" (only the evening before and on the morning itself)
+function urgentBinLine(state) {
+  const b = nextBins(state);
+  return b && b.urgent ? '🗑 ' + b.label + ': ' + b.names.join(', ') : null;
+}
+
 // --------------------------------------------------------------- drawing
 function text(stack, value, font, color, lines) {
   const t = stack.addText(String(value));
@@ -202,7 +225,13 @@ function smallWidget(w, s, me, staleAt) {
     const t = text(r, joinNames(lead.names) + ' · ' + lead.top, Font.semiboldSystemFont(13), TEXT, 1);
     t.minimumScaleFactor = 0.7;
   }
-  text(w, s.total + ' all-time', Font.systemFont(12), MUTED, 1);
+  const bins = urgentBinLine(s);
+  if (bins) {
+    const t = text(w, bins, Font.semiboldSystemFont(12), AMBER, 2);
+    t.minimumScaleFactor = 0.7;
+  } else {
+    text(w, s.total + ' all-time', Font.systemFont(12), MUTED, 1);
+  }
 }
 
 function mediumWidget(w, s, me, staleAt) {
@@ -242,6 +271,11 @@ function mediumWidget(w, s, me, staleAt) {
     right.addSpacer(3);
   }
   right.addSpacer();
+  const bins = urgentBinLine(s);
+  if (bins) {
+    const t = text(right, bins, Font.semiboldSystemFont(12), AMBER, 1);
+    t.minimumScaleFactor = 0.6;
+  }
 }
 
 function largeWidget(w, s, me, staleAt, photo) {
@@ -309,6 +343,23 @@ function largeWidget(w, s, me, staleAt, photo) {
   }
 
   w.addSpacer();
+  const nb = nextBins(s);
+  if (nb) {
+    const br = w.addStack();
+    br.centerAlignContent();
+    text(br, '🗑 ' + nb.label, Font.semiboldSystemFont(12), nb.urgent ? AMBER : MUTED, 1);
+    br.addSpacer(8);
+    for (const i of nb.items) {
+      const chip = br.addStack();
+      chip.backgroundColor = new Color(i.color || '#888888');
+      chip.cornerRadius = 7;
+      chip.setPadding(2, 6, 2, 6);
+      text(chip, i.short || i.name, Font.semiboldSystemFont(11), new Color(i.text || '#ffffff'), 1);
+      br.addSpacer(4);
+    }
+    br.addSpacer();
+    w.addSpacer(8);
+  }
   divider(w);
   w.addSpacer(8);
   const msg = w.addStack();
@@ -348,11 +399,14 @@ function accessoryWidget(w, s, family) {
     b.centerAlignText();
     row.addSpacer();
   } else if (family === 'accessoryInline') {
-    text(w, '🍺 ' + s.week + ' this week' + (lead ? ' · 👑 ' + joinNames(lead.names) : ''), Font.systemFont(12), null, 1);
+    const bins = urgentBinLine(s);
+    text(w, bins || '🍺 ' + s.week + ' this week' + (lead ? ' · 👑 ' + joinNames(lead.names) : ''), Font.systemFont(12), null, 1);
   } else {
     text(w, '🍺 ' + s.week + ' this week', Font.semiboldSystemFont(15), null, 1);
     text(w, lead ? '👑 ' + joinNames(lead.names) + ' · ' + lead.top : 'No beers yet', Font.systemFont(13), null, 1);
-    text(w, s.total + ' all-time', Font.systemFont(12), null, 1);
+    const bins = urgentBinLine(s);
+    const t = text(w, bins || s.total + ' all-time', bins ? Font.semiboldSystemFont(12) : Font.systemFont(12), null, 1);
+    t.minimumScaleFactor = 0.7;
   }
 }
 
